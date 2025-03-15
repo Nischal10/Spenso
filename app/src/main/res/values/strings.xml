@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Spenso</string>
+    <!-- This is a placeholder. Replace with your actual web client ID from Firebase console -->
+    <string name="default_web_client_id">312092719801-ut9rfkd1q7bhag0jbl6b110b4sqc8pja.apps.googleusercontent.com</string>
 </resources>

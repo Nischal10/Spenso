@@ -98,7 +98,8 @@ fun SpensoTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
+            // Instead of directly setting statusBarColor, use WindowCompat
+            WindowCompat.setDecorFitsSystemWindows(window, false)
             // Use light status bar icons for light theme, dark icons for dark theme
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }

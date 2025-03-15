@@ -38,8 +38,8 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.W900,
-        fontSize = 34.sp,
-        lineHeight = 42.sp,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
@@ -51,4 +51,3 @@ val Typography = Typography(
     )
     // Add other styles (e.g., headlineLarge, displayMedium) as needed
 )
-
