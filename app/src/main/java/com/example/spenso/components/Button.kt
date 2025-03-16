@@ -73,7 +73,7 @@ fun PrimaryButton(
         Text(
             text = text,
             fontSize = 16.sp,
-            fontWeight = FontWeight.W500,
+            fontWeight = FontWeight.SemiBold,
             fontFamily = interFontFamily
         )
     }
