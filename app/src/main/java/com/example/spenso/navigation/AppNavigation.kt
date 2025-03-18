@@ -12,11 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Cottage
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -73,11 +73,11 @@ object AppDestinations {
 }
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
-    object Home : BottomNavItem("home", Icons.Default.Home, "Home")
-    object Transactions : BottomNavItem("transactions", Icons.Default.List, "Transactions")
-    object Reports : BottomNavItem("reports", Icons.Default.Info, "Reports")
-    object Category : BottomNavItem("category", Icons.Default.Settings, "Category")
-    object Profile : BottomNavItem("profile", Icons.Default.Person, "Profile")
+    data object Home : BottomNavItem("home", Icons.Default.Cottage, "Home")
+    data object Transactions : BottomNavItem("transactions", Icons.Default.Receipt, "Transactions")
+    data object Reports : BottomNavItem("reports", Icons.Default.PieChart, "Reports")
+    data object Category : BottomNavItem("category", Icons.Default.Sell, "Category")
+    data object Profile : BottomNavItem("profile", Icons.Default.Person, "Profile")
 }
 
 val bottomNavItems = listOf(
@@ -238,7 +238,7 @@ fun MainScreen(
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedIconColor = MaterialTheme.colorScheme.onSurface,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             indicatorColor = Color.Transparent
                         ),
