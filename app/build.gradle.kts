@@ -90,4 +90,7 @@ dependencies {
 
     // Add Fire Store dependency here
     implementation (libs.firebase.firestore)
+
+    // DataStore for preferences
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }

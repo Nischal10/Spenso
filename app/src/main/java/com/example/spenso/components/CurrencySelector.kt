@@ -34,12 +34,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -53,50 +58,63 @@ fun CurrencySelector(
     onDismiss: () -> Unit
 ) {
     val selectedCurrency by viewModel.selectedCurrency.collectAsState()
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     
     // Handle back press when the selector is open
     BackHandler {
+        focusManager.clearFocus()
         onDismiss()
     }
     
+    // Auto-focus the search field when opened
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
     Surface(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f),
         color = MaterialTheme.colorScheme.background,
-        shadowElevation = 4.dp
+        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header with title and close button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Select Currency",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
+            // Handle at the top
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .width(40.dp)
+                    .height(4.dp)
+                    .background(
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                        RoundedCornerShape(2.dp)
                     )
-                }
-            }
+            )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            // Header with title
+            Text(
+                text = "Select Currency",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
             
-            // Search field
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Search field with auto-focus
             TextField(
                 value = viewModel.searchQuery,
                 onValueChange = { viewModel.updateSearchQuery(it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 placeholder = { Text("Search currency") },
                 leadingIcon = {
                     Icon(
@@ -127,7 +145,9 @@ fun CurrencySelector(
                     errorIndicatorColor = Color.Transparent
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { /* Handle search */ })
+                keyboardActions = KeyboardActions(onSearch = { 
+                    focusManager.clearFocus() 
+                })
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -142,6 +162,7 @@ fun CurrencySelector(
                         isSelected = viewModel.isCurrencySelected(currency.id),
                         onClick = {
                             viewModel.selectCurrency(currency)
+                            focusManager.clearFocus()
                             onDismiss()
                         }
                     )
@@ -152,6 +173,8 @@ fun CurrencySelector(
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
