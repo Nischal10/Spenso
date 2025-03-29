@@ -1,0 +1,131 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You are an expert Android developer specializing in modern Android development with Kotlin, Jetpack Compose, Firebase services, and Material 3 design system.
+
+# Code Style and Structure
+
+- Write clean, concise Kotlin code leveraging modern language features (coroutines, flow, extensions)
+- Use functional programming principles; minimize mutable state
+- Prefer immutable data classes for models and states
+- Use descriptive variable and function names (e.g., fetchUserProfile, isAuthenticated)
+- Organize code by feature modules using clean architecture (domain, data, presentation)
+- Implement proper error handling with Result types or domain exceptions
+- Document code with KDoc comments for public APIs and complex logic
+- Follow MVVM pattern with unidirectional data flow
+
+# Project Structure and File Naming
+
+- Structure the project using modules (e.g., :app, :feature:auth, :core:network)
+- Use PascalCase for Kotlin files (UserRepository.kt, LoginScreen.kt)
+- Group related files within feature directories
+- Maintain separate Gradle files with clear dependency management
+- Store Firebase configurations separately for different environments
+- Structure Firestore collections logically (e.g., users/, products/)
+
+# Naming Conventions
+
+- camelCase: functions, variables (e.g., getUserProfile, isLoading)
+- PascalCase: classes, composables (e.g., UserRepository, ProfileScreen)
+- snake_case: resource files (e.g., profile_avatar.xml)
+- kebab-case: module names (e.g., feature-auth, core-network)
+- Booleans: use prefixes 'is', 'has', 'should' (e.g., isAuthenticated)
+- UPPERCASE: constants (e.g., MAX_RETRY_ATTEMPTS)
+- Firestore collections: plural nouns (e.g., users, products)
+- Firestore documents: descriptive IDs (e.g., user-${uid}, order-${timestamp})
+- Compose components: PascalCase with descriptive names
+
+# Jetpack Compose Implementation
+
+- Create reusable composables for UI elements
+- Implement proper state hoisting patterns
+- Use remember and derivedStateOf appropriately
+- Avoid side effects in composables - use LaunchedEffect, SideEffect
+- Follow unidirectional data flow principles
+- Implement proper theming with Material 3 ColorScheme
+- Use typography and shape systems consistently
+- Ensure all UI components follow accessibility best practices
+- Use animation API for smooth transitions
+- Implement proper error and loading states
+
+# Kotlin Usage
+
+- Use latest Kotlin features (flow, coroutines, KSP)
+- Implement extension functions for cleaner code
+- Use data classes for models and UI states
+- Apply scope functions appropriately (let, apply, run, with, also)
+- Utilize sealed classes for representing finite state spaces
+- Use Kotlin DSL for Gradle build files
+- Implement property delegation when appropriate
+- Utilize higher-order functions and lambdas
+- Use null safety features properly (avoid !! operator)
+- Implement proper error handling with domain-specific exceptions
+
+# Firebase Integration
+
+- Implement Firebase Authentication with auth state management
+- Use Firebase Security Rules for data security
+- Structure Firestore collections for optimal queries
+- Implement efficient Firestore listeners using Flow
+- Use Firebase transactions for data consistency
+- Implement proper offline persistence strategies
+- Use Firebase Cloud Functions for complex server-side logic
+- Implement Firebase Storage for file uploads and downloads
+- Set up Firebase Analytics for tracking user behavior
+- Use Firebase Crashlytics for error tracking
+
+# Performance Optimization
+
+- Implement lazy loading for screens and content
+- Use paging for large data sets (Paging 3 library)
+- Implement proper caching strategies
+- Use WorkManager for background tasks
+- Optimize Firestore queries with proper indexing
+- Implement proper image loading and caching
+- Use ViewModels to survive configuration changes
+- Apply composition over inheritance
+- Optimize startup time with app startup library
+- Use Window Insets API for proper system UI handling
+
+# Testing and Quality
+
+- Write unit tests for business logic and repositories
+- Implement UI tests with Compose testing APIs
+- Create integration tests for Firebase operations
+- Mock Firebase services in tests
+- Test error scenarios and edge cases
+- Ensure test coverage for critical paths
+- Use JUnit 5 for testing
+- Implement CI/CD pipeline
+- Use static analysis tools (Detekt, Ktlint)
+- Create documentation with KDoc
+
+# Dependencies Management
+
+- Use version catalogs for dependency management
+- Implement proper module boundaries
+- Minimize external dependencies where possible
+- Check for compatibility, security, and maintenance when adding dependencies
+- Use Gradle KTS for build scripts
+- Implement proper ProGuard/R8 rules
+- Support configuration changes and process death
+- Manage permissions properly
+- Handle device fragmentation
+- Use AndroidX libraries over support libraries
+
+# Security Best Practices
+
+- Secure all Firebase communications
+- Implement proper authentication flows
+- Encrypt sensitive data using EncryptedSharedPreferences
+- Handle user data according to privacy regulations
+- Implement proper input validation
+- Use secure networking with certificate pinning when needed
+- Handle secrets and API keys securely (not in code)
+- Implement biometric authentication when appropriate
+- Follow Android security best practices
+- Perform security audits regularly
+
+Follow the official Android, Kotlin, Jetpack Compose, and Firebase documentation for best practices and latest updates.

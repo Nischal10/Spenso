@@ -3,6 +3,7 @@ package com.example.spenso.navigation
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,18 +73,18 @@ object AppDestinations {
     const val MAIN_ROUTE = "main"
 }
 
-sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
+sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String?) {
     data object Home : BottomNavItem("home", Icons.Default.Cottage, "Home")
     data object Transactions : BottomNavItem("transactions", Icons.Default.Receipt, "Transactions")
-    data object Reports : BottomNavItem("reports", Icons.Default.PieChart, "Reports")
-    data object Category : BottomNavItem("category", Icons.Default.Sell, "Category")
-    data object Profile : BottomNavItem("profile", Icons.Default.Person, "Profile")
+    data object Add : BottomNavItem("add", Icons.Default.Add, null)
+    data object Category : BottomNavItem("category", Icons.Default.Sell, "Categories")
+    data object Profile : BottomNavItem("profile", Icons.Default.Person, "You")
 }
 
 val bottomNavItems = listOf(
     BottomNavItem.Home,
     BottomNavItem.Transactions,
-    BottomNavItem.Reports,
+    BottomNavItem.Add,
     BottomNavItem.Category,
     BottomNavItem.Profile
 )
@@ -189,8 +190,7 @@ fun MainScreen(
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
-                    .padding(horizontal = 16.dp),
+                    .height(80.dp),
                 containerColor = MaterialTheme.colorScheme.background,
                 tonalElevation = 0.dp
             ) {
@@ -219,11 +219,38 @@ fun MainScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
+                            } else if (item == BottomNavItem.Add) {
+                                // Circular background for Add button
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.DarkGray),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = "Add",
+                                        modifier = Modifier.size(24.dp),
+                                        tint = Color.White
+                                    )
+                                }
                             } else {
                                 // Regular icon for other tabs
                                 Icon(
                                     imageVector = item.icon, 
-                                    contentDescription = item.title
+                                    contentDescription = item.title,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        },
+                        label = {
+                            item.title?.let {
+                                Text(
+                                    text = it,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    maxLines = 1
                                 )
                             }
                         },
@@ -241,26 +268,7 @@ fun MainScreen(
                             selectedIconColor = MaterialTheme.colorScheme.onSurface,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             indicatorColor = Color.Transparent
-                        ),
-                        modifier = if (index < bottomNavItems.size - 1) {
-                            Modifier.padding(end = 4.dp)
-                        } else {
-                            Modifier
-                        }
-                    )
-                }
-            }
-        },
-        floatingActionButton = {
-            if (currentDestination?.route == BottomNavItem.Home.route) {
-                FloatingActionButton(
-                    onClick = { /* Add expense action */ },
-                    containerColor = Color(0xFF6200EE) // Purple color
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Expense",
-                        tint = Color.White
+                        )
                     )
                 }
             }
@@ -277,8 +285,13 @@ fun MainScreen(
             composable(BottomNavItem.Transactions.route) {
                 TransactionsScreen()
             }
-            composable(BottomNavItem.Reports.route) {
-                ReportsScreen()
+            composable(BottomNavItem.Add.route) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Add new transaction")
+                }
             }
             composable(BottomNavItem.Category.route) {
                 CategoryScreen()
