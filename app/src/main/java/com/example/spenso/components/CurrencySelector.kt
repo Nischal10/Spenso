@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +51,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.spenso.data.Currency
 import com.example.spenso.viewmodel.CurrencyViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +63,7 @@ fun CurrencySelector(
     val selectedCurrency by viewModel.selectedCurrency.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
     
     // Handle back press when the selector is open
     BackHandler {
@@ -107,6 +111,31 @@ fun CurrencySelector(
             )
             
             Spacer(modifier = Modifier.height(8.dp))
+            
+            // Currently selected currency
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Current: ${selectedCurrency.code} (${selectedCurrency.symbol})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
             
             // Search field with auto-focus
             TextField(
@@ -161,9 +190,18 @@ fun CurrencySelector(
                         currency = currency,
                         isSelected = viewModel.isCurrencySelected(currency.id),
                         onClick = {
+                            // Select the currency first
                             viewModel.selectCurrency(currency)
+                            
+                            // Clear focus
                             focusManager.clearFocus()
-                            onDismiss()
+                            
+                            // Use coroutine to add a small delay before dismissing
+                            // This ensures the UI updates before the sheet is dismissed
+                            coroutineScope.launch {
+                                delay(50) // Very small delay to allow recomposition
+                                onDismiss()
+                            }
                         }
                     )
                     

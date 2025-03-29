@@ -1,18 +1,14 @@
 package com.example.spenso.data
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-// Extension property for accessing the DataStore from the Context
-val Context.themeDataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_preferences")
-
-// Theme options
+/**
+ * Theme options supported by the app.
+ */
 enum class ThemeMode {
     SYSTEM, LIGHT, DARK;
     
@@ -28,24 +24,38 @@ enum class ThemeMode {
 }
 
 /**
- * Repository for managing theme preferences using DataStore.
+ * Repository for managing theme preferences using SharedPreferences.
+ * 
+ * This implementation uses SharedPreferences instead of DataStore to avoid
+ * the unresolved reference issues with DataStore.
  */
 class ThemePreferencesRepository(private val context: Context) {
     
-    private val themeDataStore = context.themeDataStore
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
+        PREFERENCES_NAME, Context.MODE_PRIVATE
+    )
     
-    // Key for storing theme preference
-    private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+    private val _themeMode = MutableStateFlow(getStoredThemeMode())
+    val themeMode: StateFlow<ThemeMode> = _themeMode
     
-    // Get the current theme mode as a Flow
-    val themeMode: Flow<ThemeMode> = themeDataStore.data.map { preferences ->
-        ThemeMode.fromString(preferences[THEME_MODE_KEY])
+    /**
+     * Get the stored theme mode from SharedPreferences.
+     */
+    private fun getStoredThemeMode(): ThemeMode {
+        val themeName = sharedPreferences.getString(THEME_MODE_KEY, ThemeMode.SYSTEM.name)
+        return ThemeMode.fromString(themeName)
     }
     
-    // Set the theme mode
-    suspend fun setThemeMode(mode: ThemeMode) {
-        themeDataStore.edit { preferences ->
-            preferences[THEME_MODE_KEY] = mode.name
-        }
+    /**
+     * Set the theme mode.
+     */
+    fun setThemeMode(mode: ThemeMode) {
+        sharedPreferences.edit().putString(THEME_MODE_KEY, mode.name).apply()
+        _themeMode.value = mode
+    }
+    
+    companion object {
+        private const val PREFERENCES_NAME = "theme_preferences"
+        private const val THEME_MODE_KEY = "theme_mode"
     }
 } 

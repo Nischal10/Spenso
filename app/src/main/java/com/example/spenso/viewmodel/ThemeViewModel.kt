@@ -1,13 +1,12 @@
 package com.example.spenso.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spenso.data.ThemeMode
 import com.example.spenso.data.ThemePreferencesRepository
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -19,18 +18,15 @@ class ThemeViewModel(application: Application) : AndroidViewModel(application) {
     
     // Expose the theme mode as a StateFlow that will be collected in the UI
     val themeMode: StateFlow<ThemeMode> = repository.themeMode
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = ThemeMode.SYSTEM
-        )
     
     /**
      * Update the theme mode preference.
      */
     fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch {
+        try {
             repository.setThemeMode(mode)
+        } catch (e: Exception) {
+            Log.e("ThemeViewModel", "Error saving theme preference", e)
         }
     }
 } 

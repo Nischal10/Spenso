@@ -32,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,10 +55,23 @@ import com.example.spenso.R
 import com.example.spenso.components.CurrencySelector
 import com.example.spenso.components.ThemeSelector
 import com.example.spenso.data.ThemeMode
+import com.example.spenso.data.User
 import com.example.spenso.viewmodel.CurrencyViewModel
 import com.example.spenso.viewmodel.ThemeViewModel
+import com.example.spenso.viewmodel.UserProfileState
+import com.example.spenso.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
+import com.google.firebase.Timestamp
+
+/**
+ * Format a timestamp to a readable date string.
+ */
+// private fun formatDate(timestamp: Long): String {
+//     if (timestamp <= 0) return "Unknown"
+//     val sdf = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+//     return sdf.format(Date(timestamp))
+// }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,16 +79,45 @@ fun ProfileScreen(
     user: FirebaseUser,
     onSignOut: () -> Unit,
     currencyViewModel: CurrencyViewModel = viewModel(),
-    themeViewModel: ThemeViewModel = viewModel()
+    themeViewModel: ThemeViewModel = viewModel(),
+    userViewModel: UserViewModel
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val selectedCurrency by currencyViewModel.selectedCurrency.collectAsState()
     val currentTheme by themeViewModel.themeMode.collectAsState()
+    val userProfileState by userViewModel.userProfile.collectAsState()
     
     // State to control the bottom sheets visibility
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showThemeSheet by remember { mutableStateOf(false) }
+    
+    // Force refresh when currency changes
+    var forceRefresh by remember { mutableStateOf(0) }
+    
+    // Load user currency preference on first load
+    LaunchedEffect(userProfileState) {
+        if (userProfileState is UserProfileState.Success) {
+            val userData = (userProfileState as UserProfileState.Success).user
+            // Find the currency in the viewModel
+            currencyViewModel.currencies.find { it.code == userData.currency }?.let { currency ->
+                if (currency.code != selectedCurrency.code) {
+                    currencyViewModel.selectCurrency(currency)
+                }
+            }
+        }
+    }
+    
+    // This will ensure the UI refreshes when we want to force it
+    LaunchedEffect(forceRefresh) {
+        // Just a trigger for recomposition
+    }
+    
+    // This ensures the UI updates when the selected currency changes
+    LaunchedEffect(selectedCurrency) {
+        // No need to do anything here - just observing selectedCurrency 
+        // will trigger recomposition of any UI that uses it
+    }
     
     // Handle the currency bottom sheet
     if (showCurrencySheet) {
@@ -85,7 +128,11 @@ fun ProfileScreen(
         ) {
             CurrencySelector(
                 viewModel = currencyViewModel,
-                onDismiss = { showCurrencySheet = false }
+                onDismiss = { 
+                    showCurrencySheet = false 
+                    // Force UI refresh when currency selector is closed
+                    forceRefresh++
+                }
             )
         }
     }

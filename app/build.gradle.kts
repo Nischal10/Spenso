@@ -89,8 +89,5 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     // Add Fire Store dependency here
-    implementation (libs.firebase.firestore)
-
-    // DataStore for preferences
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.firebase.firestore)
 }

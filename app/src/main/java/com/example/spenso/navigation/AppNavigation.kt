@@ -57,6 +57,7 @@ import com.example.spenso.ui.screens.HomeScreen
 import com.example.spenso.ui.screens.LoginScreen
 import com.example.spenso.ui.screens.ProfileScreen
 import com.example.spenso.ui.screens.TransactionsScreen
+import com.example.spenso.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseUser
 
 object AppDestinations {
@@ -139,7 +140,8 @@ fun AppNavigation(
                     user = user,
                     onSignOut = {
                         authViewModel.signOut()
-                    }
+                    },
+                    userViewModel = viewModel()
                 )
             }
         }
@@ -150,7 +152,8 @@ fun AppNavigation(
 @Composable
 fun MainScreen(
     user: FirebaseUser,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    userViewModel: UserViewModel = viewModel()
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -298,7 +301,11 @@ fun MainScreen(
                 CategoryScreen()
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen(user = user, onSignOut = onSignOut)
+                ProfileScreen(
+                    user = user, 
+                    onSignOut = onSignOut,
+                    userViewModel = userViewModel
+                )
             }
         }
     }

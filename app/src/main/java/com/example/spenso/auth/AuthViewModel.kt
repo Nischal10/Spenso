@@ -2,10 +2,12 @@ package com.example.spenso.auth
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.spenso.data.UserRepository
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit
 class AuthViewModel : ViewModel() {
     
     private val auth = FirebaseAuth.getInstance()
+    private val userRepository = UserRepository()
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState
     
@@ -176,21 +179,65 @@ class AuthViewModel : ViewModel() {
     
     private suspend fun firebaseAuthWithGoogle(account: GoogleSignInAccount, context: Context) {
         try {
+            Log.d("AuthViewModel", "Starting Firebase authentication with Google")
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             val authResult = auth.signInWithCredential(credential).await()
             val user = authResult.user
             
             if (user != null) {
+                Log.d("AuthViewModel", "Firebase authentication successful: ${user.uid}")
+                // Save user to Firestore
+                viewModelScope.launch(Dispatchers.IO) {
+                    Log.d("AuthViewModel", "Saving user to Firestore: ${user.uid}")
+                    val savedToFirestore = saveUserToFirestore(user, context)
+                    if (!savedToFirestore) {
+                        // If saving fails, retry once
+                        Log.d("AuthViewModel", "First attempt to save user failed, retrying...")
+                        saveUserToFirestore(user, context)
+                    }
+                    
+                    // Update the last login time
+                    userRepository.updateLastLogin(user.uid)
+                }
+                
                 _authState.value = AuthState.Authenticated(user)
                 // Schedule token refresh
                 scheduleTokenRefresh(user)
             } else {
+                Log.e("AuthViewModel", "Firebase authentication returned null user")
                 _authState.value = AuthState.Error("Authentication failed")
                 Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
+            Log.e("AuthViewModel", "Firebase authentication failed", e)
             _authState.value = AuthState.Error(e.message ?: "Authentication failed")
             Toast.makeText(context, "Authentication failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private suspend fun saveUserToFirestore(user: FirebaseUser, context: Context): Boolean {
+        return try {
+            Log.d("AuthViewModel", "Starting to save user to Firestore")
+            // Launch a coroutine to save user data to Firestore
+            val success = userRepository.saveUser(user)
+            if (success) {
+                Log.d("AuthViewModel", "Successfully saved user to Firestore")
+            } else {
+                // Log the error but don't block authentication
+                // The app can still function without storing user data in Firestore
+                Log.e("AuthViewModel", "Failed to save user to Firestore")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed to save user data to database. Will retry later.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            success
+        } catch (e: Exception) {
+            // Log the error but don't block authentication
+            Log.e("AuthViewModel", "Exception while saving user to Firestore", e)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            false
         }
     }
     

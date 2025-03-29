@@ -28,7 +28,8 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { keepSplashScreenVisible }
         
         // Initialize the ThemeViewModel
-        themeViewModel = ViewModelProvider(this)[ThemeViewModel::class.java]
+        themeViewModel = ViewModelProvider(this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application))[ThemeViewModel::class.java]
 
         lifecycleScope.launch {
             delay(1000) // Keep visible for 1 second
